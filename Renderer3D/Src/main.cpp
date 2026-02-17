@@ -4,9 +4,16 @@
 #include <chrono>
 #include <string>
 
+#include "VBO.hpp"
+#include "EBO.hpp"
+#include "VAO.hpp"
+#include "Shader.hpp"
+
 // External Libraries
 #include <GLFW/glfw3.h>
 #include <glad/glad.h> 
+
+using namespace BenScr;
 
 void Run() {
 	assert(glfwInit());
@@ -15,25 +22,59 @@ void Run() {
 	glfwWindowHint(GLFW_SAMPLES, 8);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+	GLfloat vertices[] = {
+		-0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f,
+		0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f,
+		0.0f, 0.5f * float(sqrt(3)) * 2 / 3, 0.0f,
+
+	    -0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f,
+		0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f,
+		0.0f, -0.5f * float(sqrt(3)) / 3, 0.0f,
+	};
+
+	GLuint indices[] = {
+		0, 3, 5,
+		3, 2, 4,
+		5, 4, 1
+	};
+
 	GLFWwindow* window = glfwCreateWindow(800, 800, "Renderer3D", nullptr, nullptr);
 	assert(window);
 
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1);
-	
+
 
 	assert(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress));
 
 	glViewport(0, 0, 800, 800);
-	glClearColor(1.f, 1.f, 1.f, 1.f);
+	glClearColor(0.1f, 0.1f, 0.1f, 1.f);
+
+	Shader shaderProgram("Shaders/default.vert", "Shaders/default.frag");
+
+	VAO va;
+	va.Bind();
+
+	VBO vb(vertices, sizeof(vertices));
+	EBO eb(indices, sizeof(indices));
+
+	va.LinkVBO(vb, 0);
+
+	va.Unbind();
+	vb.Unbind();
+	eb.Unbind();
+
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	auto last = std::chrono::steady_clock::now();
 
-	float hue = 0.f;
-
 	while (!glfwWindowShouldClose(window)) {
+
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		glViewport(0, 0, w, h);
+
 		auto now = std::chrono::steady_clock::now();
 
 		auto elapsed = std::chrono::duration<double>(now - last);
@@ -42,22 +83,23 @@ void Run() {
 		std::string title = std::to_string(1.0 / deltaTime) + " FPS\n";
 		glfwSetWindowTitle(window, title.c_str());
 
-		hue = std::fmod(hue + deltaTime * 0.1f, 1.0f);
-
-		float r = std::sin(6.28318f * hue + 0.0f) * 0.5f + 0.5f;
-		float g = std::sin(6.28318f * hue + 2.09439f) * 0.5f + 0.5f;
-		float b = std::sin(6.28318f * hue + 4.18879f) * 0.5f + 0.5f;
-
-		glClearColor(r, g, b, 1.0f);
-
-		glClearColor(r, g, b, 1.f);
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		shaderProgram.Activate();
+		va.Bind();
+
+		glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 
 		last = now;
 	}
+
+	vb.Delete();
+	eb.Delete();
+	va.Delete();
+	shaderProgram.Delete();
 
 	glfwDestroyWindow(window);
 	glfwTerminate();
@@ -74,6 +116,6 @@ int main() {
 		return -1;
 	}
 
-	
+
 	return 0;
 }

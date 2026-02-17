@@ -139,11 +139,31 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Src\EBO.cpp" />
     <ClCompile Include="Src\glad.c" />
     <ClCompile Include="Src\main.cpp" />
+    <ClCompile Include="Src\Shader.cpp" />
+    <ClCompile Include="Src\VAO.cpp" />
+    <ClCompile Include="Src\VBO.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Src\Test.h" />
+    <ClInclude Include="Src\EBO.hpp" />
+    <ClInclude Include="Src\Shader.hpp" />
+    <ClInclude Include="Src\VAO.hpp" />
+    <ClInclude Include="Src\VBO.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\default.vert">
+      <SubType>
+      </SubType>
+    </None>
+    <None Include="Shaders\default.frag">
+      <SubType>
+      </SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Shaders\default.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

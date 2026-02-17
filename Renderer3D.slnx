@@ -3,5 +3,5 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="Renderer3D/Renderer3D.vcxproj" />
+  <Project Path="Renderer3D/Renderer3D.vcxproj" Id="babb6b86-cf84-4e2a-ad9a-39026f983df7" />
 </Solution>
