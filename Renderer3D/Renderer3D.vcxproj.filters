@@ -33,6 +33,9 @@
     <ClCompile Include="Src\VAO.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="Src\Texture.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\Shader.hpp">
@@ -47,12 +50,12 @@
     <ClInclude Include="Src\VAO.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Texture.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\default.frag" />
     <None Include="Shaders\default.vert" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="Shaders\default.txt" />
   </ItemGroup>
 </Project>

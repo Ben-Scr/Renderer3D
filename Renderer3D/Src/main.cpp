@@ -8,12 +8,35 @@
 #include "EBO.hpp"
 #include "VAO.hpp"
 #include "Shader.hpp"
+#include "Texture.hpp"
 
 // External Libraries
 #include <GLFW/glfw3.h>
 #include <glad/glad.h> 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 using namespace BenScr;
+
+GLfloat vertices[] =
+{ //     COORDINATES     /        COLORS      /   TexCoord  //
+	-0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	0.0f, 0.0f,
+	-0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	5.0f, 0.0f,
+	 0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	0.0f, 0.0f,
+	 0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	5.0f, 0.0f,
+	 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	2.5f, 5.0f
+};
+
+GLuint indices[] =
+{
+	0, 1, 2,
+	0, 2, 3,
+	0, 1, 4,
+	1, 2, 4,
+	2, 3, 4,
+	3, 0, 4
+};
 
 void Run() {
 	assert(glfwInit());
@@ -22,21 +45,6 @@ void Run() {
 	glfwWindowHint(GLFW_SAMPLES, 8);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLfloat vertices[] = {
-		-0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f,
-		0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f,
-		0.0f, 0.5f * float(sqrt(3)) * 2 / 3, 0.0f,
-
-	    -0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f,
-		0.5f / 2, 0.5f * float(sqrt(3)) / 6, 0.0f,
-		0.0f, -0.5f * float(sqrt(3)) / 3, 0.0f,
-	};
-
-	GLuint indices[] = {
-		0, 3, 5,
-		3, 2, 4,
-		5, 4, 1
-	};
 
 	GLFWwindow* window = glfwCreateWindow(800, 800, "Renderer3D", nullptr, nullptr);
 	assert(window);
@@ -51,6 +59,7 @@ void Run() {
 	glClearColor(0.1f, 0.1f, 0.1f, 1.f);
 
 	Shader shaderProgram("Shaders/default.vert", "Shaders/default.frag");
+	shaderProgram.Activate();
 
 	VAO va;
 	va.Bind();
@@ -58,16 +67,26 @@ void Run() {
 	VBO vb(vertices, sizeof(vertices));
 	EBO eb(indices, sizeof(indices));
 
-	va.LinkVBO(vb, 0);
+	va.LinkAttrib(vb, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
+	va.LinkAttrib(vb, 1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	va.LinkAttrib(vb, 2, 2, GL_FLOAT, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 
 	va.Unbind();
 	vb.Unbind();
 	eb.Unbind();
 
+
+	GLuint uniID = glGetUniformLocation(shaderProgram.GetProgram(), "scale");
+
+	Texture texture("brick.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+	texture.TexUnit(shaderProgram, "tex0", 0);
+
 	glEnable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	auto last = std::chrono::steady_clock::now();
+	float rotation = 0.f;
 
 	while (!glfwWindowShouldClose(window)) {
 
@@ -83,12 +102,32 @@ void Run() {
 		std::string title = std::to_string(1.0 / deltaTime) + " FPS\n";
 		glfwSetWindowTitle(window, title.c_str());
 
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		shaderProgram.Activate();
+		glm::mat4 model = glm::mat4(1.0f);
+		glm::mat4 view = glm::mat4(1.0f);
+		glm::mat4 proj = glm::mat4(1.0f);
+		view = glm::translate (view, glm::vec3(0.0f, -0.5f, -2.0f));
+		proj = glm::perspective(glm::radians(45.0f), (float)(w / h), 0.1f, 100.f);
+
+		rotation += deltaTime * 10.f;
+		model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
+
+		int modelLoc = glGetUniformLocation(shaderProgram.GetProgram(), "model");
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+		int viewLoc = glGetUniformLocation(shaderProgram.GetProgram(), "view");
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+
+		int projLoc = glGetUniformLocation(shaderProgram.GetProgram(), "proj");
+		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
+
+
+		glUniform1f(uniID, 0.5f);
+		texture.Bind();
 		va.Bind();
 
-		glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

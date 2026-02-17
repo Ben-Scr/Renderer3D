@@ -14,7 +14,10 @@ namespace BenScr {
 
 		void Activate();
 		void Delete();
+		GLuint GetProgram() const { return Id; }
 	private:
 		GLuint Id;
+
+		void CompileErrors(unsigned int shader,const char* name);
 	};
 }

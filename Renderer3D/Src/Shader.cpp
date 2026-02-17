@@ -24,9 +24,13 @@ namespace BenScr {
 		glShaderSource(vertexShader, 1, &vertContent, nullptr);
 		glCompileShader(vertexShader);
 
+		CompileErrors(vertexShader, "Vertex");
+
 		GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 		glShaderSource(fragmentShader, 1, &fragContent, nullptr);
 		glCompileShader(fragmentShader);
+
+		CompileErrors(fragmentShader, "Fragment");
 
 		Id = glCreateProgram();
 		glAttachShader(Id, vertexShader);
@@ -43,5 +47,43 @@ namespace BenScr {
 	}
 	void Shader::Delete() {
 		glDeleteProgram(Id);
+	}
+
+	void Shader::CompileErrors(unsigned int shader, const char* name)
+	{
+		const bool isProgram =
+			(std::string(name).find("PROGRAM") != std::string::npos) ||
+			(std::string(name).find("Program") != std::string::npos) ||
+			(std::string(name).find("program") != std::string::npos);
+
+		GLint success = 0;
+		if (isProgram) {
+			glGetProgramiv(shader, GL_LINK_STATUS, &success);
+		}
+		else {
+			glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+		}
+
+		if (success == GL_TRUE) return;
+
+		GLint logLen = 0;
+		if (isProgram) {
+			glGetProgramiv(shader, GL_INFO_LOG_LENGTH, &logLen);
+		}
+		else {
+			glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLen);
+		}
+
+		std::string log;
+		log.resize((logLen > 1) ? static_cast<size_t>(logLen) : 1);
+
+		if (isProgram) {
+			glGetProgramInfoLog(shader, logLen, nullptr, log.data());
+		}
+		else {
+			glGetShaderInfoLog(shader, logLen, nullptr, log.data());
+		}
+
+		throw std::runtime_error(std::string(name) + " failed:\n" + log);
 	}
 }

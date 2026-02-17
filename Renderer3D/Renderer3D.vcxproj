@@ -143,12 +143,14 @@
     <ClCompile Include="Src\glad.c" />
     <ClCompile Include="Src\main.cpp" />
     <ClCompile Include="Src\Shader.cpp" />
+    <ClCompile Include="Src\Texture.cpp" />
     <ClCompile Include="Src\VAO.cpp" />
     <ClCompile Include="Src\VBO.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\EBO.hpp" />
     <ClInclude Include="Src\Shader.hpp" />
+    <ClInclude Include="Src\Texture.hpp" />
     <ClInclude Include="Src\VAO.hpp" />
     <ClInclude Include="Src\VBO.hpp" />
   </ItemGroup>
@@ -161,9 +163,6 @@
       <SubType>
       </SubType>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="Shaders\default.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
