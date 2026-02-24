@@ -3,6 +3,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Custom
+*.c linguist-vendored
+
 # User-specific files
 *.rsuser
 *.suo
@@ -10,7 +13,6 @@
 *.userosscache
 *.sln.docstates
 *.png
-*.c
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
