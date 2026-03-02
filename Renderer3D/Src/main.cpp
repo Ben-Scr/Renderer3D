@@ -39,7 +39,9 @@ GLuint indices[] =
 };
 
 void Run() {
-	assert(glfwInit());
+	if (!glfwInit()) {
+		throw std::runtime_error("Failed to init glfw");
+	}
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_SAMPLES, 8);
@@ -47,14 +49,16 @@ void Run() {
 
 
 	GLFWwindow* window = glfwCreateWindow(800, 800, "Renderer3D", nullptr, nullptr);
-	assert(window);
+	if (!window) {
+		throw std::runtime_error("Failed to create window");
+	}
 
 	glfwMakeContextCurrent(window);
 	glfwFocusWindow(window);
 	glfwSwapInterval(1);
 
 
-	assert(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress));
+	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
 	glViewport(0, 0, 800, 800);
 	glClearColor(0.1f, 0.1f, 0.1f, 1.f);
