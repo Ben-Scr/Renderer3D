@@ -1,5 +1,5 @@
 # Renderer3D
-Simple C++ 3D Renderer
+Simple C++ OpenGL 3D Renderer
 
 ## Preview
 <p align="left">
